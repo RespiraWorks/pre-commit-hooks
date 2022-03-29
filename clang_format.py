@@ -20,9 +20,10 @@ import sys
 import tempfile
 import urllib.request
 from pathlib import Path
-# Depending on the verion of python running, typing may or may not contain
-# Final.  If importing it from typing doesn't work, we'll import it from
-# typing_extensions (its location for older python versions).
+# typing module available for python 3.6 or lower does not include Final.
+# This leads to ImportError. In case this happens, we can try to import
+# Final from typing_extensions, which is a backport of the newest typing
+# functionalities into older python versions (3.5 and 3.6).
 try:
     from typing import Final, Mapping, Optional, Sequence, Tuple
 except ImportError:
@@ -194,7 +195,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     this_dir = os.path.dirname(__file__)
     git_cf_path = os.path.join(this_dir, "git-clang-format")
     if args.scope == "diff":
-        print("Formatting changed lines in " + " ".join(f"{args.files}"))
+        print("Formatting changed lines in " + " ".join([str(x) for x in args.files]))
         clang_format_run = subprocess.run(
             (
                 sys.executable,
@@ -208,7 +209,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             check=True,
         )
     elif args.scope == "whole-file":
-        print("Formatting all lines in " + " ".join(f"{args.files}"))
+        print("Formatting all lines in " + " ".join([str(x) for x in args.files]))
         clang_format_run = subprocess.run(
             (
                 f"{clang_format_path(get_version_key(args.version))}",
